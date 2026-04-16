@@ -1,15 +1,28 @@
+
+"""
+    .------..------..------..------..------..------..------..------..------.
+    |S.--. ||C.--. ||O.--. ||U.--. ||N.--. ||D.--. ||R.--. ||E.--. ||L.--. |
+    | :/\: || :/\: || :/\: || (\/) || :(): || :/\: || :(): || (\/) || :/\: |
+    | :\/: || :\/: || :\/: || :\/: || ()() || (__) || ()() || :\/: || (__) |
+    | '--'S|| '--'C|| '--'O|| '--'U|| '--'N|| '--'D|| '--'R|| '--'E|| '--'L|
+    `------'`------'`------'`------'`------'`------'`------'`------'`------'
+"""
+
+import pygame
 from itertools import product
 import random
 
-""" Future developement notes:
-1. As of now flee adds cards to room in opposite order. Leave or change? Might create interesting new rooms.
-2. Add room count instead of "cards in deck"
-3. Add room cleaned message
-"""
+#setting up pygame
+pygame.init()
+screen = pygame.display.set_mode((1280, 800))
+clock = pygame.time.Clock()
+lose_screen = pygame.transform.scale(pygame.image.load('assets/you_lose.png'), (1280, 800))
+win_screen = pygame.transform.scale(pygame.image.load('assets/you_win.png'), (1280, 800))
+background = pygame.transform.scale(pygame.image.load('assets/background.png'), (1280, 800))
+#setting a font
+font = pygame.font.SysFont('Arial', 36)
 
-
-
-#-----------------------SETUP--------------------------
+#-------------------GAME SETUP--------------------------
 
 #creating the deck
 black_suits = ['♣', '♠']
@@ -24,15 +37,16 @@ deck.extend(list(product(ranks_red, red_suits)))
 #shuffle the deck
 random.shuffle(deck)
 
-#create an empty weapon slot
+#setting original state
+health = 20
+room = []
 weapon = []
 weapon_cap = float('inf')
 
 # Setting ranks to values and suits to classes
 dict_rank_to_value = {'2':2, '3':3, '4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14}
 
-
-
+ 
 #-----------------------MECHANICS--------------------------
 
 def form_room():
@@ -40,10 +54,12 @@ def form_room():
     room = []
     for i in range(4):
         room.append(deck.pop(0))
-    print()
-    print("As you enter the dungeon, you look around. This is what you see:")
-    print()
-    print(room)
+    # ----- print statements will not work, must be rendered -----
+    #print()
+    #print("As you enter the dungeon, you look around. This is what you see:")
+    #print()
+    #print(room)
+
 
 def choose_card():
     global room, played_card
@@ -63,94 +79,242 @@ def choose_card():
     room.pop(choice - 1)
     print()
     print(f'You played the card {played_card}')
-    
-def card_effect():
-    global health, weapon, weapon_cap
-    if played_card[1] in black_suits:
-        #if you have a weapon and the weapon cap is at least the rank of the card
-        if len(weapon) > 0 and weapon_cap >= dict_rank_to_value.get(played_card[0]):
-            #player must choose to use weapon or not
-            choice = None
-            while choice is None:
-                try:
-                    #only set choice to answer if correct letter is entered
-                    choice = input("Do you want to use your weapon to lower the damage. Your weapon cap will decrease (y/n): ")
-                    if choice not in ('y','n'):
-                        print("Invalid choice, try again.")
-                        choice = None
-                except ValueError:
-                    print(f"Please answer with y or n (yes/no)")
-            #if player chooses to use weapon: subtract weapon strength from hit
-            if choice == 'y':
-                blocked_hit = dict_rank_to_value.get(played_card[0]) - dict_rank_to_value.get(weapon[0])
-                #cant gain health from hits, min cap at 0
-                if blocked_hit < 0:
-                    blocked_hit = 0
-                health = health - blocked_hit
-                weapon_cap = dict_rank_to_value.get(played_card[0]) - 1
-                if health > 0:
-                    print(f"You strike with your weapon, blocking some of the blow. You take {blocked_hit} damage. Health: {health}")
-                else:
-                    loose()
-            #otherwise subtract full hit from health
-            else:
-                health = health - dict_rank_to_value.get(played_card[0])
-                print(f"You fight bare handed and take {dict_rank_to_value.get(played_card[0])} damage. Health: {health}")
-        #if you dont have a weapon or weapon is too weak
-        else:
-            damage = dict_rank_to_value.get(played_card[0])
-            health = health - damage
-            if health > 0:
-                if len(weapon) > 0:
-                    print(f"Your weapon is too weak for this foe — you fight bare handed and take {damage} damage. Health: {health}")
-                else:
-                    print(f"You fight bare handed and take {damage} damage. Health: {health}")
-            else:
-                loose()
-    elif played_card[1] == '♥':
-        health = health + dict_rank_to_value.get(played_card[0])
-        #max health cap at 20
-        if health > 20:
-            health = 20
-        print(f"You look around and find a healing elixir. You drink it and feel your wounds close. Health: {health}.")
-    elif played_card[1] == '♦':
-        if len(weapon) > 0:
-            print(f"You drop your old weapon and pick up a new one with a strength of {played_card[0]}.")
-        else:
-            print(f"You pick up a weapon with a strength of {played_card[0]} and equip it. You feel stronger.")
-        weapon = played_card
-        weapon_cap = float('inf')
 
 def refill_room():
-    global deck, room
+    global deck, room, game_phase
     #1 Karte bleibt immer übrig
     if len(deck) == 1:
         room.append(deck.pop(0))
-        win()
+        game_phase = 'win'
     else:  
         for i in range(3):
             room.append(deck.pop(0))
-        print()
-        print ('your new room is:')
-        print(room)
-        print()
-        print(f'cards in deck:{len(deck)}')
+        game_phase = 'flee_or_play'
+    
+
+def card_effect(card, use_weapon=False):
+    global health, weapon, weapon_cap, game_phase
+    if card[1] in black_suits:    
+        
+        #if you use a weapon
+        if use_weapon == True:
+            #if player chooses to use weapon: subtract weapon strength from hit
+            blocked_hit = dict_rank_to_value.get(card[0]) - dict_rank_to_value.get(weapon[0])
+            #cant gain health from hits, min cap at 0
+            if blocked_hit < 0:
+                blocked_hit = 0
+            health = health - blocked_hit
+            weapon_cap = dict_rank_to_value.get(card[0]) - 1
+        #if you dont use a weapon
+        else:
+            damage = dict_rank_to_value.get(card[0])
+            health = health - damage
+        if health <= 0:
+            game_phase = 'lose_screen'
+            print(health, game_phase)
+        else:
+            game_phase = 'playing'
+
+    elif card[1] == '♦':
+        weapon = card
+        weapon_cap = float('inf')
+        game_phase = 'playing'
+
+    elif card[1] == '♥':
+        health = health + dict_rank_to_value.get(card[0])
+        #max health cap at 20
+        if health > 20:
+            health = 20
+        game_phase = 'playing'
+
+
+"""
 
 def win():
-    print("""
-    You clear the final room and look around — silence at last.
-    You look around at the scattered cards, the broken weapons, the empty potion vials —
-    remnants of a battle hard fought and barely won.
 
-    With trembling legs you climb back toward the light, a legend forged in the dark.
 
-    *** YOU HAVE CONQUERED THE SCOUNDREL DUNGEON! ***
-    """)
-    print(f'remaining cards: {room}')
-    exit()
 
-def loose():
-    print("""
+"""
+
+form_room()
+game_phase = 'flee_or_play'
+
+#-------STARTING PYGAME MAIN LOOP------------
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+    
+        #-------EVENT BLOCK------------
+        if game_phase != 'lose_screen':
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                #play or flee phase
+                if game_phase == 'flee_or_play':
+                    if play_button.collidepoint(event.pos):
+                        game_phase = 'playing'
+                    elif flee_button.collidepoint(event.pos):
+                        while room:
+                            deck.append(room.pop())
+                        form_room()
+                        game_phase = 'playing'
+                #playing phase
+                elif game_phase == 'playing':
+                    #click on card detection
+                    card_rects_room = (card_1_rect, card_2_rect, card_3_rect, card_4_rect)
+                    for i, card_rects in enumerate (card_rects_room):
+                        if card_rects.collidepoint(event.pos):
+                            #set the played card
+                            played_card = room[i]
+                            #pop played card from room
+                            room.pop(i)
+                            if played_card[1] in black_suits and len(weapon) > 0 and weapon_cap >= dict_rank_to_value.get(played_card[0]):
+                                game_phase = 'weapon_or_barehand'
+                            else:card_effect(played_card)
+                            #refill room if 1 card left & back to f/p
+                            if len(room) == 1 and game_phase != 'weapon_or_barehand':
+                                refill_room()
+
+                elif game_phase == 'weapon_or_barehand':
+                    #player must choose to use weapon or not
+                    if use_weapon_button.collidepoint(event.pos):
+                        card_effect(played_card, True)
+                    elif barehand_button.collidepoint(event.pos):
+                        card_effect(played_card)
+                    if len(room) == 1:
+                        refill_room()
+           
+                        
+
+    #-------RENDERING BLOCK------------
+
+    #rendering the background first
+    screen.blit(background, (0, 0))
+
+    #rendering the deck
+    pygame.draw.rect(screen, 'red', (60, 260, 200, 280))
+
+    #rendering the room
+    if len(room)>= 1:
+        card_1_rect = pygame.Rect(300, 260, 200, 280)
+        pygame.draw.rect(screen, 'white', card_1_rect)
+        if room[0][1] in black_suits:
+            text_card_1 = font.render(room[0][0] + ' ' + room[0][1], True, (0, 0, 0))
+        else: 
+            text_card_1 = font.render(room[0][0] + ' ' + room[0][1], True, (255, 0, 0))
+        text_card_1_rect = text_card_1.get_rect(center = (400, 400))
+        screen.blit(text_card_1, text_card_1_rect)
+
+    if len(room)>= 2:
+        card_2_rect = pygame.Rect(510, 260, 200, 280)
+        pygame.draw.rect(screen, 'white', card_2_rect)
+        if room[1][1] in black_suits:
+            text_card_2 = font.render(room[1][0] + ' ' + room[1][1], True, (0, 0, 0))
+        else: 
+            text_card_2 = font.render(room[1][0] + ' ' + room[1][1], True, (255, 0, 0))
+        text_card_2_rect = text_card_2.get_rect(center = (610, 400))
+        screen.blit(text_card_2, text_card_2_rect)
+
+    if len(room)>= 3:
+        card_3_rect = pygame.Rect(720, 260, 200, 280)
+        pygame.draw.rect(screen, 'white', card_3_rect)
+        if room[2][1] in black_suits:
+            text_card_3 = font.render(room[2][0] + ' ' + room[2][1], True, (0, 0, 0))
+        else:
+            text_card_3 = font.render(room[2][0] + ' ' + room[2][1], True, (255, 0, 0))
+        text_card_3_rect = text_card_3.get_rect(center = (820, 400))
+        screen.blit(text_card_3, text_card_3_rect)
+
+    if len(room)>= 4:
+        card_4_rect = pygame.Rect(930, 260, 200, 280)
+        pygame.draw.rect(screen, 'white', card_4_rect)
+        if room[3][1] in black_suits:
+            text_card_4 = font.render(room[3][0] + ' ' + room[3][1], True, (0, 0, 0))
+        else:
+            text_card_4 = font.render(room[3][0] + ' ' + room[3][1], True, (255, 0, 0))
+        text_card_4_rect = text_card_4.get_rect(center = (1030, 400))
+        screen.blit(text_card_4, text_card_4_rect)
+    
+    #rendering the weapon
+    if len(weapon) == 2:
+        weapon_rect = pygame.Rect(60, 550, 100, 140)
+        pygame.draw.rect(screen, 'white', weapon_rect)
+        if weapon[1] in black_suits:
+            text_weapon = font.render(weapon[0] + ' ' + weapon[1], True, (0, 0, 0))
+        else:
+            text_weapon = font.render(weapon[0] + ' ' + weapon[1], True, (255, 0, 0))
+        text_weapon_rect = text_weapon.get_rect(center = (110, 620))
+        screen.blit(text_weapon, text_weapon_rect)
+
+    #render phase specifics
+    if game_phase == 'flee_or_play':
+        #render question p/f?
+        pygame.draw.rect(screen, 'white', (315, 70, 800, 50))
+        text_f_or_p = font.render("Do you want to play this room or flee?", True, (0, 0, 0))
+        text_f_or_p_rect = text_f_or_p.get_rect(center = (715, 95))
+        screen.blit(text_f_or_p, text_f_or_p_rect)
+        #render play button
+        play_button = pygame.Rect(325, 150, 150, 80)
+        pygame.draw.rect(screen, 'white', play_button)
+        text_play = font.render("PLAY", True, (0, 0, 0))
+        text_play_rect = text_play.get_rect(center = (400, 190))
+        screen.blit(text_play, text_play_rect)
+        #render flee button
+        flee_button = pygame.Rect(955, 150, 150, 80)
+        pygame.draw.rect(screen, 'white', flee_button)
+        text_flee = font.render("FLEE", True, (0, 0, 0))
+        text_flee_rect = text_flee.get_rect(center = (1025, 190))
+        screen.blit(text_flee, text_flee_rect)
+
+    if game_phase == 'weapon_or_barehand':
+        #render question w/b?
+        pygame.draw.rect(screen, 'white', (265, 70, 900, 50))
+        text_f_or_p = font.render("Do you want to use your weapon or fight barehanded?", True, (0, 0, 0))
+        text_f_or_p_rect = text_f_or_p.get_rect(center = (715, 95))
+        screen.blit(text_f_or_p, text_f_or_p_rect)
+        #render play button
+        use_weapon_button = pygame.Rect(250, 150, 300, 80)
+        pygame.draw.rect(screen, 'white', use_weapon_button)
+        text_play = font.render("USE WEAPON", True, (0, 0, 0))
+        text_play_rect = text_play.get_rect(center = (400, 190))
+        screen.blit(text_play, text_play_rect)
+        #render flee button
+        barehand_button = pygame.Rect(900, 150, 300, 80)
+        pygame.draw.rect(screen, 'white', barehand_button)
+        text_flee = font.render("BAREHAND", True, (0, 0, 0))
+        text_flee_rect = text_flee.get_rect(center = (1050, 190))
+        screen.blit(text_flee, text_flee_rect)
+
+    #render health
+    text_health = font.render(f'HP: {health}', True, (255, 255, 255))
+    screen.blit(text_health, (650, 20))
+    text_weapon_cap = font.render(f'Weapon Cap: {weapon_cap}', True, (255, 255, 255))
+    screen.blit(text_weapon_cap, (300, 600))
+
+     #rendering ending screens over everything else
+    if game_phase == 'lose_screen':
+            screen.blit(lose_screen, (0, 0))
+    if game_phase == 'win':
+            screen.blit(win_screen, (0, 0))
+
+    pygame.display.flip()
+    clock.tick(60)
+
+pygame.quit()
+
+"""
+
+
+Future Feature Dev notes:
+1. As of now flee adds cards to room in opposite order. Leave or change? Might create interesting new rooms.
+2. Add room count instead of "cards in deck"
+"""
+
+""" Unused print statements from CLI version:
+print(f"You strike with your weapon, blocking some of the blow. You take {blocked_hit} damage. Health: {health}")
+print(f"You fight bare handed and take {dict_rank_to_value.get(played_card[0])} damage. Health: {health}")
+print("
     Your health has been depleted. Darkness closes in.
     Your legs give way and you crumble to the dungeon floor.
     The monsters loom over you as your torch flickers out...
@@ -158,40 +322,40 @@ def loose():
     You have fallen in the depths of the Scoundrel dungeon.
 
     *** GAME OVER — better luck next time, hero. ***
-    """)
-    exit()
-
-def flee_or_play():
-    choice = None
-    while choice is None:
-        try:
-            #only set choice to answer if correct letter is entered
-            choice = input("Do you want to play this room or flee (p/f): ")
-            if choice not in ('p','f'):
-                print("Invalid choice, try again.")
-                choice = None
-        except ValueError:
-            print(f"Please answer with p or f (play/flee)")
-    if choice == 'p':
-        pass
-    else:
-        while room:
-            deck.append(room.pop())
+    ")
 
 
+print(f"You drop your old weapon and pick up a new one with a strength of {card[0]}.")
+
+
+print(f"You pick up a weapon with a strength of {card[0]} and equip it. You feel stronger.")
+
+print(f"You look around and find a healing elixir. You drink it and feel your wounds close. Health: {health}.")
+
+print("
+You clear the final room and look around — silence at last.
+You look around at the scattered cards, the broken weapons, the empty potion vials —
+remnants of a battle hard fought and barely won.
+
+With trembling legs you climb back toward the light, a legend forged in the dark.
+
+*** YOU HAVE CONQUERED THE SCOUNDREL DUNGEON! ***
+")
+print(f'remaining cards: {room}')
+
+print(f"Your weapon is too weak for this foe — you fight bare handed and take {damage} damage. Health: {health}")
+
+print(f"You fight bare handed and take {damage} damage. Health: {health}")
+
+
+"""
+"""
 
 #-----------------------GAMING PROCESS--------------------------
 
-#starting the game
-print("""
-    .------..------..------..------..------..------..------..------..------.
-    |S.--. ||C.--. ||O.--. ||U.--. ||N.--. ||D.--. ||R.--. ||E.--. ||L.--. |
-    | :/\: || :/\: || :/\: || (\/) || :(): || :/\: || :(): || (\/) || :/\: |
-    | :\/: || :\/: || :\/: || :\/: || ()() || (__) || ()() || :\/: || (__) |
-    | '--'S|| '--'C|| '--'O|| '--'U|| '--'N|| '--'D|| '--'R|| '--'E|| '--'L|
-    `------'`------'`------'`------'`------'`------'`------'`------'`------'
-""")
-print("""
+
+
+
 ------------------------------------ INTRO ------------------------------------
 Welcome, young hero, to the depths of the Scoundrel dungeon!
 You stand at the entrance, torch in hand, heart pounding with courage and dread.
@@ -207,32 +371,9 @@ may restore your weary body — but only if you have the strength to reach them.
 - The game ends when your health reaches 0... or you clear the entire dungeon.
 
 Good luck! You'll need it...
-""")
+")
 
-health = 20
 print("---------------------------------- GAME START ----------------------------------")
 print(f'Your health = {health}')
-form_room()
-#playing the game
-#mail loop runs forever 
-#winning / loosing conditions defined in other functions
-while True:
-    flee_or_play()
-    if len(room) == 0:
-        form_room()
-    else:
-        pass
-    while len(room) > 1:
-        choose_card()
-        card_effect()
-        print()
-        print(f'cards still in room: {room}')
-        print()
-        if len(weapon) > 0:
-            print(f'your weapon: {weapon}')
-            print(f'your weapon cap:{weapon_cap}')
-        else:
-            pass
-        
-        
-    refill_room()
+
+   """

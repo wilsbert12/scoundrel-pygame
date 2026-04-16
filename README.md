@@ -6,7 +6,7 @@
     | :\/: || :\/: || :\/: || :\/: || ()() || (__) || ()() || :\/: || (__) |
     | '--'S|| '--'C|| '--'O|| '--'U|| '--'N|| '--'D|| '--'R|| '--'E|| '--'L|
     `------'`------'`------'`------'`------'`------'`------'`------'`------'
-A text-based Python implementation of the card game Scoundrel, playable in the terminal.
+This is a pygame implementation of the card game Scoundrel. Click on cards to play them, fight monsters, collect weapons and potions, and try to clear the dungeon.
 
 ## How to play
 
@@ -22,10 +22,16 @@ You start with 20 HP. The game ends when there are not enough cards left in the 
 
 ## Requirements
 
-- Python 3
+- Python 3.11
+- pygame (`pip install pygame`)
 
 ## Running the game
 
 ```
+source venv/bin/activate
 python main.py
 ```
+
+## Development notes
+
+- Game phases (flee_or_play, playing, etc.) currently have two separate code blocks each — one for rendering, one for event handling. Consider refactoring into a state machine with proper state objects (render + handle input in one place per state) as complexity grows.
