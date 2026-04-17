@@ -277,7 +277,16 @@ while running:
     #render health
     text_health = font.render(f'HP: {health}', True, (255, 255, 255))
     screen.blit(text_health, (450, 20))
-    text_weapon_cap = font.render(f'Weapon Cap: {weapon_cap}', True, (255, 255, 255))
+    if weapon_cap == float('inf'):
+        text_weapon_cap = font.render(f'Weapon Cap: -', True, (255, 255, 255))
+    elif weapon_cap in (2,3,4,5,6,7,8,9,10):
+        text_weapon_cap = font.render(f'Weapon Cap: {weapon_cap}', True, (255, 255, 255))
+    elif weapon_cap == 11:
+        text_weapon_cap = font.render(f'Weapon Cap: J', True, (255, 255, 255))
+    elif weapon_cap == 12:
+        text_weapon_cap = font.render(f'Weapon Cap: Q', True, (255, 255, 255))
+    elif weapon_cap == 13:
+        text_weapon_cap = font.render(f'Weapon Cap: K', True, (255, 255, 255))
     screen.blit(text_weapon_cap, (750, 20))
 
      #rendering ending screens over everything else
