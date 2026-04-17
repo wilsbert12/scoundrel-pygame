@@ -1,4 +1,5 @@
 venv/
+rename_cards.py
 .DS_Store
 __pycache__/
 *.pyc

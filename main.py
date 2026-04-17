@@ -14,13 +14,13 @@ import random
 
 #setting up pygame
 pygame.init()
-screen = pygame.display.set_mode((1280, 800))
+screen = pygame.display.set_mode((1280, 900))
 clock = pygame.time.Clock()
-lose_screen = pygame.transform.scale(pygame.image.load('assets/you_lose.png'), (1280, 800))
-win_screen = pygame.transform.scale(pygame.image.load('assets/you_win.png'), (1280, 800))
-background = pygame.transform.scale(pygame.image.load('assets/background.png'), (1280, 800))
+lose_screen = pygame.transform.scale(pygame.image.load('assets/you_lose.png'), (1280, 900))
+win_screen = pygame.transform.scale(pygame.image.load('assets/you_win.png'), (1280, 900))
+background = pygame.transform.scale(pygame.image.load('assets/background.png'), (1280, 900))
 #setting a font
-font = pygame.font.SysFont('Arial', 36)
+font = pygame.font.Font('assets/DungeonFont.ttf', 36)
 
 #-------------------GAME SETUP--------------------------
 
@@ -46,6 +46,17 @@ weapon_cap = float('inf')
 # Setting ranks to values and suits to classes
 dict_rank_to_value = {'2':2, '3':3, '4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14}
 
+suit_symbols_to_strings = {
+    '♠': 'spades',
+    '♣': 'clubs',
+    '♥': 'hearts', 
+    '♦': 'diamonds'
+}
+
+card_images = {}
+for card in deck:
+    card_path = f'assets/cards/{card[0]}_{suit_symbols_to_strings[card[1]]}.png'
+    card_images[card] = pygame.image.load(card_path)
  
 #-----------------------MECHANICS--------------------------
 
@@ -111,7 +122,6 @@ def card_effect(card, use_weapon=False):
             health = health - damage
         if health <= 0:
             game_phase = 'lose_screen'
-            print(health, game_phase)
         else:
             game_phase = 'playing'
 
@@ -128,13 +138,7 @@ def card_effect(card, use_weapon=False):
         game_phase = 'playing'
 
 
-"""
-
-def win():
-
-
-
-"""
+#-------SETUP------------
 
 form_room()
 game_phase = 'flee_or_play'
@@ -172,9 +176,10 @@ while running:
                             if played_card[1] in black_suits and len(weapon) > 0 and weapon_cap >= dict_rank_to_value.get(played_card[0]):
                                 game_phase = 'weapon_or_barehand'
                             else:card_effect(played_card)
-                            #refill room if 1 card left & back to f/p
-                            if len(room) == 1 and game_phase != 'weapon_or_barehand':
+                            #refill room if 1 card
+                            if len(room) == 1 and game_phase != 'weapon_or_barehand'and game_phase != 'lose_screen':
                                 refill_room()
+                                print(game_phase , len(room))
 
                 elif game_phase == 'weapon_or_barehand':
                     #player must choose to use weapon or not
@@ -182,7 +187,7 @@ while running:
                         card_effect(played_card, True)
                     elif barehand_button.collidepoint(event.pos):
                         card_effect(played_card)
-                    if len(room) == 1:
+                    if len(room) == 1 and game_phase != 'lose_screen':
                         refill_room()
            
                         
@@ -193,104 +198,87 @@ while running:
     screen.blit(background, (0, 0))
 
     #rendering the deck
-    pygame.draw.rect(screen, 'red', (60, 260, 200, 280))
+    image_deck = pygame.transform.scale(pygame.image.load('assets/cards/back_side.png'), (200, 280))    
+    screen.blit(image_deck, (60, 260))
 
     #rendering the room
     if len(room)>= 1:
         card_1_rect = pygame.Rect(300, 260, 200, 280)
-        pygame.draw.rect(screen, 'white', card_1_rect)
-        if room[0][1] in black_suits:
-            text_card_1 = font.render(room[0][0] + ' ' + room[0][1], True, (0, 0, 0))
-        else: 
-            text_card_1 = font.render(room[0][0] + ' ' + room[0][1], True, (255, 0, 0))
-        text_card_1_rect = text_card_1.get_rect(center = (400, 400))
-        screen.blit(text_card_1, text_card_1_rect)
+        card_1_image = pygame.transform.scale(card_images[room[0]],(200, 280))
+        screen.blit(card_1_image, card_1_rect)
 
     if len(room)>= 2:
         card_2_rect = pygame.Rect(510, 260, 200, 280)
-        pygame.draw.rect(screen, 'white', card_2_rect)
-        if room[1][1] in black_suits:
-            text_card_2 = font.render(room[1][0] + ' ' + room[1][1], True, (0, 0, 0))
-        else: 
-            text_card_2 = font.render(room[1][0] + ' ' + room[1][1], True, (255, 0, 0))
-        text_card_2_rect = text_card_2.get_rect(center = (610, 400))
-        screen.blit(text_card_2, text_card_2_rect)
+        card_2_image = pygame.transform.scale(card_images[room[1]],(200, 280))
+        screen.blit(card_2_image, card_2_rect)
 
     if len(room)>= 3:
         card_3_rect = pygame.Rect(720, 260, 200, 280)
-        pygame.draw.rect(screen, 'white', card_3_rect)
-        if room[2][1] in black_suits:
-            text_card_3 = font.render(room[2][0] + ' ' + room[2][1], True, (0, 0, 0))
-        else:
-            text_card_3 = font.render(room[2][0] + ' ' + room[2][1], True, (255, 0, 0))
-        text_card_3_rect = text_card_3.get_rect(center = (820, 400))
-        screen.blit(text_card_3, text_card_3_rect)
+        card_3_image = pygame.transform.scale(card_images[room[2]],(200, 280))
+        screen.blit(card_3_image, card_3_rect)
 
     if len(room)>= 4:
         card_4_rect = pygame.Rect(930, 260, 200, 280)
-        pygame.draw.rect(screen, 'white', card_4_rect)
-        if room[3][1] in black_suits:
-            text_card_4 = font.render(room[3][0] + ' ' + room[3][1], True, (0, 0, 0))
-        else:
-            text_card_4 = font.render(room[3][0] + ' ' + room[3][1], True, (255, 0, 0))
-        text_card_4_rect = text_card_4.get_rect(center = (1030, 400))
-        screen.blit(text_card_4, text_card_4_rect)
+        card_4_image = pygame.transform.scale(card_images[room[3]],(200, 280))
+        screen.blit(card_4_image, card_4_rect)
     
     #rendering the weapon
     if len(weapon) == 2:
         weapon_rect = pygame.Rect(60, 550, 100, 140)
-        pygame.draw.rect(screen, 'white', weapon_rect)
-        if weapon[1] in black_suits:
-            text_weapon = font.render(weapon[0] + ' ' + weapon[1], True, (0, 0, 0))
-        else:
-            text_weapon = font.render(weapon[0] + ' ' + weapon[1], True, (255, 0, 0))
-        text_weapon_rect = text_weapon.get_rect(center = (110, 620))
-        screen.blit(text_weapon, text_weapon_rect)
+        weapon_image = pygame.transform.scale(card_images[weapon],(200, 280))
+        screen.blit(weapon_image, weapon_rect)
 
     #render phase specifics
     if game_phase == 'flee_or_play':
         #render question p/f?
-        pygame.draw.rect(screen, 'white', (315, 70, 800, 50))
+        p_f_text_bg_image = pygame.transform.scale(pygame.image.load('assets/stone.png'),(800, 50))
         text_f_or_p = font.render("Do you want to play this room or flee?", True, (0, 0, 0))
         text_f_or_p_rect = text_f_or_p.get_rect(center = (715, 95))
+        screen.blit(p_f_text_bg_image, (315, 70))
         screen.blit(text_f_or_p, text_f_or_p_rect)
         #render play button
         play_button = pygame.Rect(325, 150, 150, 80)
-        pygame.draw.rect(screen, 'white', play_button)
+        play_button_bg_image = pygame.transform.scale(pygame.image.load('assets/stone.png'),(150, 80))
         text_play = font.render("PLAY", True, (0, 0, 0))
         text_play_rect = text_play.get_rect(center = (400, 190))
+        screen.blit(play_button_bg_image, (325, 150))
         screen.blit(text_play, text_play_rect)
+
         #render flee button
         flee_button = pygame.Rect(955, 150, 150, 80)
-        pygame.draw.rect(screen, 'white', flee_button)
+        flee_button_bg_image = pygame.transform.scale(pygame.image.load('assets/stone.png'),(150, 80))
         text_flee = font.render("FLEE", True, (0, 0, 0))
         text_flee_rect = text_flee.get_rect(center = (1025, 190))
+        screen.blit(flee_button_bg_image, (950, 150))
         screen.blit(text_flee, text_flee_rect)
 
     if game_phase == 'weapon_or_barehand':
         #render question w/b?
-        pygame.draw.rect(screen, 'white', (265, 70, 900, 50))
-        text_f_or_p = font.render("Do you want to use your weapon or fight barehanded?", True, (0, 0, 0))
-        text_f_or_p_rect = text_f_or_p.get_rect(center = (715, 95))
-        screen.blit(text_f_or_p, text_f_or_p_rect)
+        w_b_text_bg_image = pygame.transform.scale(pygame.image.load('assets/stone.png'),(900, 50))
+        text_w_or_b = font.render("Do you want to use your weapon or fight barehanded?", True, (0, 0, 0))
+        text_w_or_b_rect = text_w_or_b.get_rect(center = (715, 95))
+        screen.blit(w_b_text_bg_image, (265, 70))
+        screen.blit(text_w_or_b, text_w_or_b_rect)
         #render play button
         use_weapon_button = pygame.Rect(250, 150, 300, 80)
-        pygame.draw.rect(screen, 'white', use_weapon_button)
+        use_weapon_button_bg_image = pygame.transform.scale(pygame.image.load('assets/stone.png'),(300, 80))
         text_play = font.render("USE WEAPON", True, (0, 0, 0))
         text_play_rect = text_play.get_rect(center = (400, 190))
+        screen.blit(use_weapon_button_bg_image, (250,150))
         screen.blit(text_play, text_play_rect)
         #render flee button
         barehand_button = pygame.Rect(900, 150, 300, 80)
-        pygame.draw.rect(screen, 'white', barehand_button)
+        barehand_button_image = pygame.transform.scale(pygame.image.load('assets/stone.png'),(300, 80))
         text_flee = font.render("BAREHAND", True, (0, 0, 0))
         text_flee_rect = text_flee.get_rect(center = (1050, 190))
+        screen.blit(barehand_button_image, (900, 150))
         screen.blit(text_flee, text_flee_rect)
 
     #render health
     text_health = font.render(f'HP: {health}', True, (255, 255, 255))
-    screen.blit(text_health, (650, 20))
+    screen.blit(text_health, (450, 20))
     text_weapon_cap = font.render(f'Weapon Cap: {weapon_cap}', True, (255, 255, 255))
-    screen.blit(text_weapon_cap, (300, 600))
+    screen.blit(text_weapon_cap, (750, 20))
 
      #rendering ending screens over everything else
     if game_phase == 'lose_screen':

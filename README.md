@@ -1,11 +1,8 @@
 # Scoundrel
 
-    .------..------..------..------..------..------..------..------..------.
-    |S.--. ||C.--. ||O.--. ||U.--. ||N.--. ||D.--. ||R.--. ||E.--. ||L.--. |
-    | :/\: || :/\: || :/\: || (\/) || :(): || :/\: || :(): || (\/) || :/\: |
-    | :\/: || :\/: || :\/: || :\/: || ()() || (__) || ()() || :\/: || (__) |
-    | '--'S|| '--'C|| '--'O|| '--'U|| '--'N|| '--'D|| '--'R|| '--'E|| '--'L|
-    `------'`------'`------'`------'`------'`------'`------'`------'`------'
+![screenshot](assets/screenshot.png)
+
+
 This is a pygame implementation of the card game Scoundrel. Click on cards to play them, fight monsters, collect weapons and potions, and try to clear the dungeon.
 
 ## How to play
@@ -31,6 +28,22 @@ You start with 20 HP. The game ends when there are not enough cards left in the 
 source venv/bin/activate
 python main.py
 ```
+
+<!-- 
+DISTRIBUTION PLAN:
+- Use PyInstaller to build executables: `pyinstaller --onefile --windowed main.py`
+- Mac (.app) and Windows (.exe) must be built separately on each platform
+- Use GitHub Actions with windows-latest and macos-latest runners to build both automatically on push
+- Attach executables as release assets on GitHub for direct download
+- Consider making repo private before selling on itch.io
+
+ASSET LICENSES — CHECK BEFORE SELLING COMMERCIALLY:
+- Card images (assets/cards/): https://kerenel.itch.io/pixelart-cards — CC0, commercial use allowed
+- Font (DungeonFont): https://vrtxrry.itch.io/dungeonfont — CC0, commercial use allowed
+- Stone texture (assets/stone.png): AI generated via Canva — commercial use allowed per Canva AI Product Terms (March 2026). Old version kept as `assets/stone_old.png` (from https://crusenho.itch.io/complete-ui-essential-pack, CC BY 4.0) in case of revert.
+- Background, win/lose screens: AI generated via Canva — commercial use allowed per Canva AI Product Terms (March 2026)
+- Screenshot: own work, no issues
+-->
 
 ## Development notes
 
