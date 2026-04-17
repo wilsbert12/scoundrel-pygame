@@ -116,6 +116,8 @@ def card_effect(card, use_weapon=False):
                 blocked_hit = 0
             health = health - blocked_hit
             weapon_cap = dict_rank_to_value.get(card[0]) - 1
+            if weapon_cap == 1:
+                weapon = []
         #if you dont use a weapon
         else:
             damage = dict_rank_to_value.get(card[0])
