@@ -14,13 +14,19 @@ import random
 
 #setting up pygame
 pygame.init()
+pygame.mixer.init()
+pygame.mixer.music.load('assets/music.ogg')
+pygame.mixer.music.set_volume(0.3)
+pygame.mixer.music.play(-1)
 screen = pygame.display.set_mode((1280, 900))
 clock = pygame.time.Clock()
+start_screen = pygame.transform.scale(pygame.image.load('assets/start_screen.png'), (1280, 900))
 lose_screen = pygame.transform.scale(pygame.image.load('assets/you_lose.png'), (1280, 900))
 win_screen = pygame.transform.scale(pygame.image.load('assets/you_win.png'), (1280, 900))
 background = pygame.transform.scale(pygame.image.load('assets/background.png'), (1280, 900))
 #setting a font
 font = pygame.font.Font('assets/DungeonFont.ttf', 36)
+font_small = pygame.font.Font('assets/DungeonFont.ttf', 28)
 
 #-------------------GAME SETUP--------------------------
 
@@ -143,7 +149,7 @@ def card_effect(card, use_weapon=False):
 #-------SETUP------------
 
 form_room()
-game_phase = 'flee_or_play'
+game_phase = 'start_screen'
 
 #-------STARTING PYGAME MAIN LOOP------------
 
@@ -157,7 +163,15 @@ while running:
         if game_phase != 'lose_screen':
             if event.type == pygame.MOUSEBUTTONDOWN:
                 #play or flee phase
-                if game_phase == 'flee_or_play':
+                if game_phase == 'start_screen':
+                    if play_rect.collidepoint(event.pos):
+                        game_phase = 'flee_or_play'
+                    elif rules_rect.collidepoint(event.pos):
+                        game_phase = 'rules_screen'
+                elif game_phase == 'rules_screen':
+                    if play_button.collidepoint(event.pos):
+                        game_phase = 'flee_or_play'
+                elif game_phase == 'flee_or_play':
                     if play_button.collidepoint(event.pos):
                         game_phase = 'playing'
                     elif flee_button.collidepoint(event.pos):
@@ -292,10 +306,62 @@ while running:
     screen.blit(text_weapon_cap, (750, 20))
 
      #rendering ending screens over everything else
+    if game_phase == 'start_screen':
+        screen.blit(start_screen, (0, 0))
+        play_rect = pygame.Rect(530, 450, 220, 115)
+        text_play = font.render("PLAY", True, (0, 0, 0))
+        text_play_rect = text_play.get_rect(center = (640, 507))
+        screen.blit(text_play, text_play_rect)
+        rules_rect = pygame.Rect(530, 633, 220, 115)
+        text_rules = font.render("RULES", True, (0, 0, 0))
+        text_rules_rect = text_rules.get_rect(center = (640, 690))
+        screen.blit(text_rules, text_rules_rect)
+    if game_phase == 'rules_screen':
+        screen.fill((0, 0, 0))
+        book = pygame.transform.scale(pygame.image.load('assets/book.png'), (800, 900))
+        screen.blit(book,(245,0))
+        rules_lines = [
+            "-------------------------- INTRO --------------------------",
+            "Welcome, young hero, to the depths of the Scoundrel dungeon!",
+            "Monsters lurk in every room, weapons lie scattered in the dark,",
+            "and potions may restore your weary body - but only if you have",
+            "the strength to reach them.",
+            "",
+            "-------------------------- RULES --------------------------",
+            "You move through a dungeon one room at a time. Each room has",
+            "4 cards from a modified deck - 52 cards with red face cards",
+            "(J, Q, K, A of hearts and diamonds) removed, leaving 44 cards.",
+            "At the start of each room, you can choose to flee or play.",
+            "If you flee, remaining cards go to the bottom of the deck.",
+            "You cannot flee two consecutive rooms.",
+            "",
+            "If you stay, play cards one at a time. Once you have played",
+            "3 of 4 cards, the room refills and you move on.",
+            "",
+            "- Clubs / Spades: Monsters. Damage equals their rank value.",
+            "  Use your weapon to block some damage.",
+            "- Hearts: Potions. Heal equal to rank value, max 20 HP.",
+            "- Diamonds: Weapons. Equip to reduce monster damage. A weapon",
+            "  can only be used against monsters weaker than the last one",
+            "  you blocked.",
+            "",
+            "The game ends when the deck runs out (you win) or HP hits 0.",
+        ]
+        for i, line in enumerate(rules_lines):
+            text_surface = font_small.render(line, True, (0, 0, 0))
+            text_rect = text_surface.get_rect(centerx=640)
+            screen.blit(text_surface, (text_rect.x, 20 + i * 28))
+            play_button = pygame.Rect(570, 730, 150, 80)
+            play_button_bg_image = pygame.transform.scale(pygame.image.load('assets/stone.png'),(150, 80))
+            text_play = font.render("PLAY", True, (0, 0, 0))
+            text_play_rect = text_play.get_rect(center = (645, 770))
+            screen.blit(play_button_bg_image, (570, 730))
+            screen.blit(text_play, text_play_rect)
     if game_phase == 'lose_screen':
             screen.blit(lose_screen, (0, 0))
     if game_phase == 'win':
             screen.blit(win_screen, (0, 0))
+        
 
     pygame.display.flip()
     clock.tick(60)
@@ -320,7 +386,7 @@ print("
 
     You have fallen in the depths of the Scoundrel dungeon.
 
-    *** GAME OVER — better luck next time, hero. ***
+    *** GAME OVER - better luck next time, hero. ***
     ")
 
 
@@ -332,8 +398,8 @@ print(f"You pick up a weapon with a strength of {card[0]} and equip it. You feel
 print(f"You look around and find a healing elixir. You drink it and feel your wounds close. Health: {health}.")
 
 print("
-You clear the final room and look around — silence at last.
-You look around at the scattered cards, the broken weapons, the empty potion vials —
+You clear the final room and look around - silence at last.
+You look around at the scattered cards, the broken weapons, the empty potion vials -
 remnants of a battle hard fought and barely won.
 
 With trembling legs you climb back toward the light, a legend forged in the dark.
@@ -342,7 +408,7 @@ With trembling legs you climb back toward the light, a legend forged in the dark
 ")
 print(f'remaining cards: {room}')
 
-print(f"Your weapon is too weak for this foe — you fight bare handed and take {damage} damage. Health: {health}")
+print(f"Your weapon is too weak for this foe - you fight bare handed and take {damage} damage. Health: {health}")
 
 print(f"You fight bare handed and take {damage} damage. Health: {health}")
 
@@ -359,11 +425,11 @@ print(f"You fight bare handed and take {damage} damage. Health: {health}")
 Welcome, young hero, to the depths of the Scoundrel dungeon!
 You stand at the entrance, torch in hand, heart pounding with courage and dread.
 Monsters lurk in every room, weapons lie scattered in the dark, and potions
-may restore your weary body — but only if you have the strength to reach them.
+may restore your weary body - but only if you have the strength to reach them.
 
 ------------------------------------ RULES ------------------------------------
 - Each room contains 4 cards drawn from the dungeon deck.
-- MONSTERS (♣ / ♠): Fight them or flee — but fleeing has a cost.
+- MONSTERS (♣ / ♠): Fight them or flee - but fleeing has a cost.
 - WEAPONS (♦): Equip them to fight monsters with less damage.
 - POTIONS (♥): Restore health, but only up to your starting 20 HP.
 - You can flee a room, but you cannot flee two rooms in a row.
