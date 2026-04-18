@@ -16,13 +16,13 @@ jobs:
           - os: macos-14
             label: mac-apple-silicon
           - os: windows-latest
-            label: windows  # runs the job once per OS
+            label: windows
 
     runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4  # pulls your repo onto the runner
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -35,10 +35,20 @@ jobs:
 
       - name: Build executable
         run: |
-          pyinstaller --onefile --windowed main.py
+          pyinstaller --onedir --windowed -y main.py
+
+      - name: Zip build output (Mac)
+        if: runner.os != 'Windows'
+        run: |
+          cd dist && zip -r ../scoundrel-${{ matrix.label }}.zip main.app
+
+      - name: Zip build output (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          cd dist && Compress-Archive -Path main -DestinationPath ../scoundrel-${{ matrix.label }}.zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: scoundrel-${{ matrix.label }}
-          path: dist/  # PyInstaller puts the executable here
+          path: scoundrel-${{ matrix.label }}.zip
