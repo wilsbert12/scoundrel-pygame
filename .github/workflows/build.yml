@@ -9,7 +9,14 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [macos-latest, windows-latest]  # runs the job once per OS
+        os: [macos-13, macos-14, windows-latest]
+        include:
+          - os: macos-13
+            label: mac-intel
+          - os: macos-14
+            label: mac-apple-silicon
+          - os: windows-latest
+            label: windows  # runs the job once per OS
 
     runs-on: ${{ matrix.os }}
 
@@ -33,5 +40,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: scoundrel-${{ matrix.os }}
+          name: scoundrel-${{ matrix.label }}
           path: dist/  # PyInstaller puts the executable here
