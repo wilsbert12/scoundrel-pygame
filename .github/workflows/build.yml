@@ -1,0 +1,37 @@
+name: Build Executables
+
+on:
+  push:
+    tags:
+      - 'v*'  # triggers on tags like v1.0, v1.2.3 etc.
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]  # runs the job once per OS
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4  # pulls your repo onto the runner
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install pygame pyinstaller
+
+      - name: Build executable
+        run: |
+          pyinstaller --onefile --windowed main.py
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: scoundrel-${{ matrix.os }}
+          path: dist/  # PyInstaller puts the executable here
