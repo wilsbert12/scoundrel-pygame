@@ -8,9 +8,13 @@
     `------'`------'`------'`------'`------'`------'`------'`------'`------'
 """
 
+#-------------------IMPORTS--------------------------
+
 import pygame
 from itertools import product
 import random
+
+#-------------------IMPORTS--------------------------
 
 #setting up pygame
 pygame.init()
@@ -20,13 +24,15 @@ pygame.mixer.music.set_volume(0.3)
 pygame.mixer.music.play(-1)
 screen = pygame.display.set_mode((1280, 900))
 clock = pygame.time.Clock()
+#setting up the full screens
 start_screen = pygame.transform.scale(pygame.image.load('assets/start_screen.png'), (1280, 900))
 lose_screen = pygame.transform.scale(pygame.image.load('assets/you_lose.png'), (1280, 900))
 win_screen = pygame.transform.scale(pygame.image.load('assets/you_win.png'), (1280, 900))
 background = pygame.transform.scale(pygame.image.load('assets/background.png'), (1280, 900))
-#setting a font
+#setting up fonts
 font = pygame.font.Font('assets/DungeonFont.ttf', 36)
 font_small = pygame.font.Font('assets/DungeonFont.ttf', 28)
+font_big = pygame.font.Font('assets/DungeonFont.ttf', 28)
 
 #-------------------GAME SETUP--------------------------
 
@@ -45,6 +51,7 @@ random.shuffle(deck)
 
 #setting original state
 health = 20
+rooms_to_play = 14
 room = []
 weapon = []
 weapon_cap = float('inf')
@@ -98,7 +105,7 @@ def choose_card():
     print(f'You played the card {played_card}')
 
 def refill_room():
-    global deck, room, game_phase
+    global deck, room, game_phase, rooms_to_play
     #1 Karte bleibt immer übrig
     if len(deck) == 1:
         room.append(deck.pop(0))
@@ -106,6 +113,7 @@ def refill_room():
     else:  
         for i in range(3):
             room.append(deck.pop(0))
+        rooms_to_play -= 1
         game_phase = 'flee_or_play'
     
 
@@ -195,7 +203,6 @@ while running:
                             #refill room if 1 card
                             if len(room) == 1 and game_phase != 'weapon_or_barehand'and game_phase != 'lose_screen':
                                 refill_room()
-                                print(game_phase , len(room))
 
                 elif game_phase == 'weapon_or_barehand':
                     #player must choose to use weapon or not
@@ -290,9 +297,9 @@ while running:
         screen.blit(barehand_button_image, (900, 150))
         screen.blit(text_flee, text_flee_rect)
 
-    #render health
+    #render text (health, weapon cap, room count)
     text_health = font.render(f'HP: {health}', True, (255, 255, 255))
-    screen.blit(text_health, (450, 20))
+    screen.blit(text_health, (400, 20))
     if weapon_cap == float('inf'):
         text_weapon_cap = font.render(f'Weapon Cap: -', True, (255, 255, 255))
     elif weapon_cap in (2,3,4,5,6,7,8,9,10):
@@ -303,9 +310,11 @@ while running:
         text_weapon_cap = font.render(f'Weapon Cap: Q', True, (255, 255, 255))
     elif weapon_cap == 13:
         text_weapon_cap = font.render(f'Weapon Cap: K', True, (255, 255, 255))
-    screen.blit(text_weapon_cap, (750, 20))
+    screen.blit(text_weapon_cap, (850, 20))
+    text_room_count = font.render(f'Rooms to Win: {rooms_to_play}', True, (255, 255, 255))
+    screen.blit(text_room_count, (550,20))
 
-     #rendering ending screens over everything else
+     #rendering game phase screens over everything else (start, loose, win, rules)
     if game_phase == 'start_screen':
         screen.blit(start_screen, (0, 0))
         play_rect = pygame.Rect(530, 450, 220, 115)
@@ -373,7 +382,7 @@ pygame.quit()
 
 Future Feature Dev notes:
 1. As of now flee adds cards to room in opposite order. Leave or change? Might create interesting new rooms.
-2. Add room count instead of "cards in deck"
+
 """
 
 """ Unused print statements from CLI version:
@@ -412,33 +421,4 @@ print(f"Your weapon is too weak for this foe - you fight bare handed and take {d
 
 print(f"You fight bare handed and take {damage} damage. Health: {health}")
 
-
 """
-"""
-
-#-----------------------GAMING PROCESS--------------------------
-
-
-
-
------------------------------------- INTRO ------------------------------------
-Welcome, young hero, to the depths of the Scoundrel dungeon!
-You stand at the entrance, torch in hand, heart pounding with courage and dread.
-Monsters lurk in every room, weapons lie scattered in the dark, and potions
-may restore your weary body - but only if you have the strength to reach them.
-
------------------------------------- RULES ------------------------------------
-- Each room contains 4 cards drawn from the dungeon deck.
-- MONSTERS (♣ / ♠): Fight them or flee - but fleeing has a cost.
-- WEAPONS (♦): Equip them to fight monsters with less damage.
-- POTIONS (♥): Restore health, but only up to your starting 20 HP.
-- You can flee a room, but you cannot flee two rooms in a row.
-- The game ends when your health reaches 0... or you clear the entire dungeon.
-
-Good luck! You'll need it...
-")
-
-print("---------------------------------- GAME START ----------------------------------")
-print(f'Your health = {health}')
-
-   """

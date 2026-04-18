@@ -3,6 +3,8 @@
 ![screenshot](assets/screenshot.png)
 
 
+Scoundrel is a card game designed by Zach Gage and Kurt Bieg. This is a fan-made pygame implementation — all rights to the original game belong to their creators.
+
 This is a pygame implementation of the card game Scoundrel. Click on cards to play them, fight monsters, collect weapons and potions, and try to clear the dungeon.
 
 ## How to play
@@ -40,6 +42,7 @@ FUTURE FEATURE IDEAS:
 - Volume control
 - Music / FX on-off toggles
 - Separate volume sliders for music and FX
+- Status message line displayed after each action (e.g. "You strike with your weapon, blocking 3 damage. HP: 14") to help players understand the rules while playing
 
 DISTRIBUTION PLAN:
 - Use PyInstaller to build executables: `pyinstaller --onefile --windowed main.py`
