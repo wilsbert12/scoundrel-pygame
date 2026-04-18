@@ -30,6 +30,17 @@ python main.py
 ```
 
 <!-- 
+FUTURE FEATURE IDEAS:
+- Room counter display
+- Room count and progress as a graphical dungeon map
+- Health bar
+- Health displayed as a hero's face getting progressively wounded
+- Animations (card play, damage, etc.)
+- Sound effects
+- Volume control
+- Music / FX on-off toggles
+- Separate volume sliders for music and FX
+
 DISTRIBUTION PLAN:
 - Use PyInstaller to build executables: `pyinstaller --onefile --windowed main.py`
 - Mac (.app) and Windows (.exe) must be built separately on each platform
@@ -48,3 +59,8 @@ ASSET LICENSES — CHECK BEFORE SELLING COMMERCIALLY:
 ## Development notes
 
 - Game phases (flee_or_play, playing, etc.) currently have two separate code blocks each — one for rendering, one for event handling. Consider refactoring into a state machine with proper state objects (render + handle input in one place per state) as complexity grows.
+- Button drawing is repeated throughout (draw rect, render centered text, store rect for collision). Extract a `draw_button(surface, text, rect, font)` helper to DRY this up.
+- Room card rendering uses four separate named rects (card_1_rect, card_2_rect, etc.). Could be a loop: calculate each card's position as `base_x + i * (card_width + gap)`.
+- Weapon cap display uses a long if/elif chain. Could be replaced with a dict lookup: `{11: 'J', 12: 'Q', 13: 'K', float('inf'): '-'}.get(weapon_cap, str(weapon_cap))`.
+- `for i in range(...)` loops where `i` is unused should be `for _ in range(...)`
+- Text rendering is repeated throughout (render, get_rect, blit). Extract a `draw_text(surface, text, font, color, center)` helper.
