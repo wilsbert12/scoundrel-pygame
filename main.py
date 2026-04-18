@@ -22,27 +22,28 @@ else:
     BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 ASSETS = os.path.join(BASE_PATH, 'assets')
 
-#-------------------IMPORTS--------------------------
+#-------------------GAME SETUP--------------------------
 
 #setting up pygame
 pygame.init()
-pygame.mixer.init()
-pygame.mixer.music.load(os.path.join(ASSETS, 'music.ogg'))
-pygame.mixer.music.set_volume(0.3)
-pygame.mixer.music.play(-1)
 screen = pygame.display.set_mode((1280, 900))
 clock = pygame.time.Clock()
+#setting up music in pygame
+pygame.mixer.init()
+pygame.mixer.music.load(os.path.join(ASSETS, 'music.ogg'))
+pygame.mixer.music.set_volume(0.2)
+pygame.mixer.music.play(-1)
+
 #setting up the full screens
 start_screen = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS, 'start_screen.png')), (1280, 900))
 lose_screen = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS, 'you_lose.png')), (1280, 900))
 win_screen = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS, 'you_win.png')), (1280, 900))
 background = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS, 'background.png')), (1280, 900))
+
 #setting up fonts
 font = pygame.font.Font(os.path.join(ASSETS, 'DungeonFont.ttf'), 36)
 font_small = pygame.font.Font(os.path.join(ASSETS, 'DungeonFont.ttf'), 28)
 font_big = pygame.font.Font(os.path.join(ASSETS, 'DungeonFont.ttf'), 28)
-
-#-------------------GAME SETUP--------------------------
 
 #creating the deck
 black_suits = ['♣', '♠']
@@ -57,14 +58,8 @@ deck.extend(list(product(ranks_red, red_suits)))
 #shuffle the deck
 random.shuffle(deck)
 
-#setting original state
-health = 20
-rooms_to_play = 14
-room = []
-weapon = []
-weapon_cap = float('inf')
-
-# Setting ranks to values and suits to classes
+# Setting ranks to values, suits symbols to suits,
+# assigning cards to images
 dict_rank_to_value = {'2':2, '3':3, '4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14}
 
 suit_symbols_to_strings = {
@@ -79,6 +74,14 @@ for card in deck:
     card_path = os.path.join(ASSETS, f'cards/{card[0]}_{suit_symbols_to_strings[card[1]]}.png')
     card_images[card] = pygame.image.load(card_path)
  
+#setting start state
+health = 20
+rooms_to_play = 14
+room = []
+weapon = []
+weapon_cap = float('inf')
+music_on = True
+
 #-----------------------MECHANICS--------------------------
 
 def form_room():
@@ -178,6 +181,16 @@ while running:
         #-------EVENT BLOCK------------
         if game_phase != 'lose_screen':
             if event.type == pygame.MOUSEBUTTONDOWN:
+                #setting the music to toggle
+                if music_on == True:
+                    if music_toggle_rect.collidepoint(event.pos):
+                        pygame.mixer.music.pause()
+                        music_on = False
+                else:
+                    if music_toggle_rect.collidepoint(event.pos):
+                        pygame.mixer.music.unpause()
+                        music_on = True
+        
                 #play or flee phase
                 if game_phase == 'start_screen':
                     if play_rect.collidepoint(event.pos):
@@ -321,6 +334,8 @@ while running:
     screen.blit(text_weapon_cap, (850, 20))
     text_room_count = font.render(f'Rooms to Win: {rooms_to_play}', True, (255, 255, 255))
     screen.blit(text_room_count, (550,20))
+    
+
 
      #rendering game phase screens over everything else (start, loose, win, rules)
     if game_phase == 'start_screen':
@@ -379,7 +394,14 @@ while running:
     if game_phase == 'win':
             screen.blit(win_screen, (0, 0))
         
-
+    #render music toggle
+    music_toggle_rect = pygame.Rect(1190,15,50,50)
+    if music_on == True:
+        music_toggle_image = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS, 'vol_on.png')), (30, 30))
+    if music_on == False:
+        music_toggle_image = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS, 'vol_off.png')), (30, 30))
+    screen.blit(music_toggle_image, (1200, 25))
+    
     pygame.display.flip()
     clock.tick(60)
 
