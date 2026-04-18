@@ -47,8 +47,7 @@ jobs:
         run: |
           cd dist && Compress-Archive -Path main -DestinationPath ../scoundrel-${{ matrix.label }}.zip
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: scoundrel-${{ matrix.label }}
-          path: scoundrel-${{ matrix.label }}.zip
+          files: scoundrel-${{ matrix.label }}.zip
