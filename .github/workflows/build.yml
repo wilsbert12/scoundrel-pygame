@@ -39,22 +39,22 @@ jobs:
       - name: Build executable (Mac)
         if: runner.os != 'Windows'
         run: |
-          pyinstaller --onedir --windowed -y --add-data "assets:assets" main.py
+          pyinstaller --onedir --windowed -y --name "Scoundrel" --add-data "assets:assets" main.py
 
       - name: Build executable (Windows)
         if: runner.os == 'Windows'
         run: |
-          pyinstaller --onedir --windowed -y --add-data "assets;assets" main.py
+          pyinstaller --onedir --windowed -y --name "Scoundrel" --add-data "assets;assets" main.py
 
       - name: Zip build output (Mac)
         if: runner.os != 'Windows'
         run: |
-          cd dist && zip -r ../scoundrel-${{ matrix.label }}.zip main.app
+          cd dist && zip -r ../scoundrel-${{ matrix.label }}.zip Scoundrel.app
 
       - name: Zip build output (Windows)
         if: runner.os == 'Windows'
         run: |
-          cd dist && Compress-Archive -Path main -DestinationPath ../scoundrel-${{ matrix.label }}.zip
+          cd dist && Compress-Archive -Path Scoundrel -DestinationPath ../scoundrel-${{ matrix.label }}.zip
 
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2

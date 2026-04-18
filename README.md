@@ -63,9 +63,20 @@ ASSET LICENSES — CHECK BEFORE SELLING COMMERCIALLY:
 - Card images (assets/cards/): https://kerenel.itch.io/pixelart-cards — CC0, commercial use allowed
 - Font (DungeonFont): https://vrtxrry.itch.io/dungeonfont — CC0, commercial use allowed
 - Stone texture (assets/stone.png): AI generated via Canva — commercial use allowed per Canva AI Product Terms (March 2026). Old version kept as `assets/stone_old.png` (from https://crusenho.itch.io/complete-ui-essential-pack, CC BY 4.0) in case of revert.
-- Background, win/lose screens: AI generated via Canva — commercial use allowed per Canva AI Product Terms (March 2026)
+- Background, win/lose screens, start screen, vol buttons (assets/vol_on.png, assets/vol_off.png): AI generated via Canva — commercial use allowed per Canva AI Product Terms (March 2026)
+- Music (assets/music.ogg): "Sleeper Beats" by CVLTIV8R — CC0, https://freesound.org/people/CVLTIV8R/sounds/809914/
+- Book UI (assets/book.png): "Complete Book Styles UI Pack" by Crusenho — free for commercial use but ATTRIBUTION REQUIRED, https://crusenho.itch.io/complete-ui-book-styles-pack
 - Screenshot: own work, no issues
 -->
+
+## Credits
+
+- **Original game design:** Scoundrel by Zach Gage and Kurt Bieg
+- **Card images:** [Pixel Art Cards](https://kerenel.itch.io/pixelart-cards) by kerenel — CC0
+- **Font:** [DungeonFont](https://vrtxrry.itch.io/dungeonfont) by vrtxrry — CC0
+- **Book UI:** [Complete Book Styles UI Pack](https://crusenho.itch.io/complete-ui-book-styles-pack) by Crusenho
+- **Music:** [Sleeper Beats](https://freesound.org/people/CVLTIV8R/sounds/809914/) by CVLTIV8R — CC0
+- **Stone texture, backgrounds, start screen, UI buttons:** AI generated via Canva
 
 ## Development notes
 

@@ -190,16 +190,21 @@ while running:
                     if music_toggle_rect.collidepoint(event.pos):
                         pygame.mixer.music.unpause()
                         music_on = True
-        
-                #play or flee phase
+
+                #-------GAME PHASE LOGIC------------
+                #start screen
                 if game_phase == 'start_screen':
                     if play_rect.collidepoint(event.pos):
                         game_phase = 'flee_or_play'
                     elif rules_rect.collidepoint(event.pos):
                         game_phase = 'rules_screen'
+
+                #rules screen
                 elif game_phase == 'rules_screen':
                     if play_button.collidepoint(event.pos):
                         game_phase = 'flee_or_play'
+
+                #play or flee phase
                 elif game_phase == 'flee_or_play':
                     if play_button.collidepoint(event.pos):
                         game_phase = 'playing'
@@ -224,7 +229,8 @@ while running:
                             #refill room if 1 card
                             if len(room) == 1 and game_phase != 'weapon_or_barehand'and game_phase != 'lose_screen':
                                 refill_room()
-
+                
+                #decision: use weapon?
                 elif game_phase == 'weapon_or_barehand':
                     #player must choose to use weapon or not
                     if use_weapon_button.collidepoint(event.pos):
@@ -401,7 +407,7 @@ while running:
     if music_on == False:
         music_toggle_image = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS, 'vol_off.png')), (30, 30))
     screen.blit(music_toggle_image, (1200, 25))
-    
+
     pygame.display.flip()
     clock.tick(60)
 
