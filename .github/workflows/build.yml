@@ -36,9 +36,15 @@ jobs:
         run: |
           pip install pygame pyinstaller
 
-      - name: Build executable
+      - name: Build executable (Mac)
+        if: runner.os != 'Windows'
         run: |
-          pyinstaller --onedir --windowed -y main.py
+          pyinstaller --onedir --windowed -y --add-data "assets:assets" main.py
+
+      - name: Build executable (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          pyinstaller --onedir --windowed -y --add-data "assets;assets" main.py
 
       - name: Zip build output (Mac)
         if: runner.os != 'Windows'

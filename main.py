@@ -13,26 +13,34 @@
 import pygame
 from itertools import product
 import random
+import sys
+import os
+
+if getattr(sys, 'frozen', False):
+    BASE_PATH = sys._MEIPASS
+else:
+    BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+ASSETS = os.path.join(BASE_PATH, 'assets')
 
 #-------------------IMPORTS--------------------------
 
 #setting up pygame
 pygame.init()
 pygame.mixer.init()
-pygame.mixer.music.load('assets/music.ogg')
+pygame.mixer.music.load(os.path.join(ASSETS, 'music.ogg'))
 pygame.mixer.music.set_volume(0.3)
 pygame.mixer.music.play(-1)
 screen = pygame.display.set_mode((1280, 900))
 clock = pygame.time.Clock()
 #setting up the full screens
-start_screen = pygame.transform.scale(pygame.image.load('assets/start_screen.png'), (1280, 900))
-lose_screen = pygame.transform.scale(pygame.image.load('assets/you_lose.png'), (1280, 900))
-win_screen = pygame.transform.scale(pygame.image.load('assets/you_win.png'), (1280, 900))
-background = pygame.transform.scale(pygame.image.load('assets/background.png'), (1280, 900))
+start_screen = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS, 'start_screen.png')), (1280, 900))
+lose_screen = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS, 'you_lose.png')), (1280, 900))
+win_screen = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS, 'you_win.png')), (1280, 900))
+background = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS, 'background.png')), (1280, 900))
 #setting up fonts
-font = pygame.font.Font('assets/DungeonFont.ttf', 36)
-font_small = pygame.font.Font('assets/DungeonFont.ttf', 28)
-font_big = pygame.font.Font('assets/DungeonFont.ttf', 28)
+font = pygame.font.Font(os.path.join(ASSETS, 'DungeonFont.ttf'), 36)
+font_small = pygame.font.Font(os.path.join(ASSETS, 'DungeonFont.ttf'), 28)
+font_big = pygame.font.Font(os.path.join(ASSETS, 'DungeonFont.ttf'), 28)
 
 #-------------------GAME SETUP--------------------------
 
@@ -68,7 +76,7 @@ suit_symbols_to_strings = {
 
 card_images = {}
 for card in deck:
-    card_path = f'assets/cards/{card[0]}_{suit_symbols_to_strings[card[1]]}.png'
+    card_path = os.path.join(ASSETS, f'cards/{card[0]}_{suit_symbols_to_strings[card[1]]}.png')
     card_images[card] = pygame.image.load(card_path)
  
 #-----------------------MECHANICS--------------------------
@@ -221,7 +229,7 @@ while running:
     screen.blit(background, (0, 0))
 
     #rendering the deck
-    image_deck = pygame.transform.scale(pygame.image.load('assets/cards/back_side.png'), (200, 280))    
+    image_deck = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS, 'cards/back_side.png')), (200, 280))
     screen.blit(image_deck, (60, 260))
 
     #rendering the room
@@ -254,14 +262,14 @@ while running:
     #render phase specifics
     if game_phase == 'flee_or_play':
         #render question p/f?
-        p_f_text_bg_image = pygame.transform.scale(pygame.image.load('assets/stone.png'),(800, 50))
+        p_f_text_bg_image = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS, 'stone.png')), (800, 50))
         text_f_or_p = font.render("Do you want to play this room or flee?", True, (0, 0, 0))
         text_f_or_p_rect = text_f_or_p.get_rect(center = (715, 95))
         screen.blit(p_f_text_bg_image, (315, 70))
         screen.blit(text_f_or_p, text_f_or_p_rect)
         #render play button
         play_button = pygame.Rect(325, 150, 150, 80)
-        play_button_bg_image = pygame.transform.scale(pygame.image.load('assets/stone.png'),(150, 80))
+        play_button_bg_image = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS, 'stone.png')), (150, 80))
         text_play = font.render("PLAY", True, (0, 0, 0))
         text_play_rect = text_play.get_rect(center = (400, 190))
         screen.blit(play_button_bg_image, (325, 150))
@@ -269,7 +277,7 @@ while running:
 
         #render flee button
         flee_button = pygame.Rect(955, 150, 150, 80)
-        flee_button_bg_image = pygame.transform.scale(pygame.image.load('assets/stone.png'),(150, 80))
+        flee_button_bg_image = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS, 'stone.png')), (150, 80))
         text_flee = font.render("FLEE", True, (0, 0, 0))
         text_flee_rect = text_flee.get_rect(center = (1025, 190))
         screen.blit(flee_button_bg_image, (950, 150))
@@ -277,21 +285,21 @@ while running:
 
     if game_phase == 'weapon_or_barehand':
         #render question w/b?
-        w_b_text_bg_image = pygame.transform.scale(pygame.image.load('assets/stone.png'),(900, 50))
+        w_b_text_bg_image = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS, 'stone.png')), (900, 50))
         text_w_or_b = font.render("Do you want to use your weapon or fight barehanded?", True, (0, 0, 0))
         text_w_or_b_rect = text_w_or_b.get_rect(center = (715, 95))
         screen.blit(w_b_text_bg_image, (265, 70))
         screen.blit(text_w_or_b, text_w_or_b_rect)
         #render play button
         use_weapon_button = pygame.Rect(250, 150, 300, 80)
-        use_weapon_button_bg_image = pygame.transform.scale(pygame.image.load('assets/stone.png'),(300, 80))
+        use_weapon_button_bg_image = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS, 'stone.png')), (300, 80))
         text_play = font.render("USE WEAPON", True, (0, 0, 0))
         text_play_rect = text_play.get_rect(center = (400, 190))
         screen.blit(use_weapon_button_bg_image, (250,150))
         screen.blit(text_play, text_play_rect)
         #render flee button
         barehand_button = pygame.Rect(900, 150, 300, 80)
-        barehand_button_image = pygame.transform.scale(pygame.image.load('assets/stone.png'),(300, 80))
+        barehand_button_image = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS, 'stone.png')), (300, 80))
         text_flee = font.render("BAREHAND", True, (0, 0, 0))
         text_flee_rect = text_flee.get_rect(center = (1050, 190))
         screen.blit(barehand_button_image, (900, 150))
@@ -327,7 +335,7 @@ while running:
         screen.blit(text_rules, text_rules_rect)
     if game_phase == 'rules_screen':
         screen.fill((0, 0, 0))
-        book = pygame.transform.scale(pygame.image.load('assets/book.png'), (800, 900))
+        book = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS, 'book.png')), (800, 900))
         screen.blit(book,(245,0))
         rules_lines = [
             "-------------------------- INTRO --------------------------",
@@ -361,7 +369,7 @@ while running:
             text_rect = text_surface.get_rect(centerx=640)
             screen.blit(text_surface, (text_rect.x, 20 + i * 28))
             play_button = pygame.Rect(570, 730, 150, 80)
-            play_button_bg_image = pygame.transform.scale(pygame.image.load('assets/stone.png'),(150, 80))
+            play_button_bg_image = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS, 'stone.png')), (150, 80))
             text_play = font.render("PLAY", True, (0, 0, 0))
             text_play_rect = text_play.get_rect(center = (645, 770))
             screen.blit(play_button_bg_image, (570, 730))
