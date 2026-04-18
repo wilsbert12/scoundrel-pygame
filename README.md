@@ -21,11 +21,19 @@ You start with 20 HP. The game ends when there are not enough cards left in the 
 
 ## Requirements
 
+Standalone builds for Mac and Windows are available on the [Releases](https://github.com/Wilsbert12/scoundrel-pygame/releases) page — no installation or Python required.
+
+To run from source:
 - Python 3.11
 - pygame (`pip install pygame`)
 
 ## Running the game
 
+**Standalone app (Mac & Windows):** Download the zip for your platform from the [Releases](https://github.com/Wilsbert12/scoundrel-pygame/releases) page, unzip, and open `main.app` (Mac) or `main.exe` (Windows). No installation required.
+
+On first launch Mac will block the app since it is unsigned. To allow it: Apple menu → System Settings → Privacy & Security → scroll down to the message about `main.app` being blocked → click "Open Anyway" → enter your password. After that you can open the app normally.
+
+**From source:**
 ```
 source venv/bin/activate
 python main.py
