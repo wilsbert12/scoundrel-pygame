@@ -42,7 +42,7 @@ background = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS, 'back
 
 #setting up fonts
 font = pygame.font.Font(os.path.join(ASSETS, 'DungeonFont.ttf'), 36)
-font_small = pygame.font.Font(os.path.join(ASSETS, 'DungeonFont.ttf'), 28)
+font_small = pygame.font.Font(os.path.join(ASSETS, 'DungeonFont.ttf'), 18)
 font_big = pygame.font.Font(os.path.join(ASSETS, 'DungeonFont.ttf'), 28)
 
 #creating the deck
@@ -359,36 +359,44 @@ while running:
         book = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS, 'book.png')), (800, 900))
         screen.blit(book,(245,0))
         rules_lines = [
-            "-------------------------- INTRO --------------------------",
-            "Welcome, young hero, to the depths of the Scoundrel dungeon!",
-            "Monsters lurk in every room, weapons lie scattered in the dark,",
-            "and potions may restore your weary body - but only if you have",
-            "the strength to reach them.",
+            "--------------------------------------- INTRO ---------------------------------------",
+            "Welcome, young hero, to the depths of the Scoundrel dungeon! Monsters lurk in every room,",
+            "weapons lie scattered in the dark, and potions may restore your body - but only if you have the strength to reach",
+            "them.",
             "",
-            "-------------------------- RULES --------------------------",
-            "You move through a dungeon one room at a time. Each room has",
-            "4 cards from a modified deck - 52 cards with red face cards",
-            "(J, Q, K, A of hearts and diamonds) removed, leaving 44 cards.",
-            "At the start of each room, you can choose to flee or play.",
-            "If you flee, remaining cards go to the bottom of the deck.",
-            "You cannot flee two consecutive rooms.",
+            "--------------------------------------- RULES ---------------------------------------",
+            "Scoundrel is played with a modified 52-card deck of standard playing cards. Red face cards (J, Q, K, A of hearts",
+            "and diamonds) are removed, leaving a deck of 44 cards. You start with a health of 20 HP.",
             "",
-            "If you stay, play cards one at a time. Once you have played",
-            "3 of 4 cards, the room refills and you move on.",
+            "At the beginning of each round, 4 cards are dealt, representing a room. After the cards are dealt you can choose",
+            "to either face the room in front of you (press play button) or flee (flee button). If you flee, the cards in the",
+            "room go back to the bottom of the deck, and 4 new cards are dealt. You cannot flee two rooms in a row.",
             "",
-            "- Clubs / Spades: Monsters. Damage equals their rank value.",
-            "  Use your weapon to block some damage.",
-            "- Hearts: Potions. Heal equal to rank value, max 20 HP.",
-            "- Diamonds: Weapons. Equip to reduce monster damage. A weapon",
-            "  can only be used against monsters weaker than the last one",
-            "  you blocked.",
+            "To play a card in a room simply click on the card you want to play. The cards effect gets applied immediately.",
+            "Effects depend on the cards suit and rank. Rank = card number (2-10) or face value (J=11, Q=12, K=13, A=14).",
             "",
-            "The game ends when the deck runs out (you win) or HP hits 0.",
+            "- Clubs & Spades: Represent monsters, and deal damage equal to their rank (e.g. King of Clubs = - 13 HP).",
+            "You can use a weapon to reduce damage (see below).",
+            "",
+            "- Hearts: Represent potions. Heal equal to their rank value, up to a max of 20 HP. (e.g. 9 of Hearts= + 9 HP)",
+            "",
+            "- Diamonds: Represent weapons. Play a weapon to equip it. When you have a weapon equiped and you are facing",
+            "a monster you can choose to either use your weapon or fight barehanded. If you choose to use your weapon",
+            "the damage gets reduced: Damage = monster rank - weapon rank. After you use your weapon, your weapon cap will",
+            "reduce to one rank lower than the last monsters rank you fought using the waepon (e.g. 10 of Diamonds vs",
+            "King of Spades = 13-10 = 3 damage and the weapons cap becomes Q (12). This weapon can from thereon only be", 
+            "used against monsters of rank Q or lower). You can only carry one weapon at a time. If you play a Diamond",
+            "card while already equipted with a weapon you will drop the old weapon and equipt the new one. A new weapon",
+            "always starts with an infinite cap.",
+            "",
+            "A round ends after 3 of 4 cards of a room are played. The remaining card carries over and 3 new",
+            "cards are dealt. If your HP hits 0 you die and it is game over! If you finish the last room and there are not",
+            "enough cards left in the deck to fill up the room, you win!",
         ]
         for i, line in enumerate(rules_lines):
             text_surface = font_small.render(line, True, (0, 0, 0))
             text_rect = text_surface.get_rect(centerx=640)
-            screen.blit(text_surface, (text_rect.x, 20 + i * 28))
+            screen.blit(text_surface, (text_rect.x, 20 + i * 21))
             play_button = pygame.Rect(570, 730, 150, 80)
             play_button_bg_image = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS, 'stone.png')), (150, 80))
             text_play = font.render("PLAY", True, (0, 0, 0))
