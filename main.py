@@ -192,13 +192,18 @@ while running:
                         music_on = True
 
                 #-------GAME PHASE LOGIC------------
+                #independent of phase rules button
+                if rules_rect.collidepoint(event.pos):
+                        game_phase = 'rules_screen'
+                
                 #start screen
                 if game_phase == 'start_screen':
-                    if play_rect.collidepoint(event.pos):
+                    if play_start_rect.collidepoint(event.pos):
                         game_phase = 'flee_or_play'
-                    elif rules_rect.collidepoint(event.pos):
+                    
+                    elif rules_rect_start.collidepoint(event.pos):
                         game_phase = 'rules_screen'
-
+                    
                 #rules screen
                 elif game_phase == 'rules_screen':
                     if play_button.collidepoint(event.pos):
@@ -250,6 +255,14 @@ while running:
     #rendering the deck
     image_deck = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS, 'cards/back_side.png')), (200, 280))
     screen.blit(image_deck, (60, 260))
+
+    #rendering the rules button
+    rules_rect = pygame.Rect(80, 120, 150, 80)
+    rules_button_image = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS, 'stone.png')), (150, 80))
+    text_rules = font.render("RULES", True, (255, 255, 255))
+    text_rules_rect = text_rules.get_rect(center = (155, 160))
+    screen.blit(rules_button_image, (80,120))
+    screen.blit(text_rules, text_rules_rect)
 
     #rendering the room
     if len(room)>= 1:
@@ -346,14 +359,15 @@ while running:
      #rendering game phase screens over everything else (start, loose, win, rules)
     if game_phase == 'start_screen':
         screen.blit(start_screen, (0, 0))
-        play_rect = pygame.Rect(530, 450, 220, 115)
-        text_play = font.render("PLAY", True, (0, 0, 0))
-        text_play_rect = text_play.get_rect(center = (640, 507))
-        screen.blit(text_play, text_play_rect)
-        rules_rect = pygame.Rect(530, 633, 220, 115)
-        text_rules = font.render("RULES", True, (0, 0, 0))
-        text_rules_rect = text_rules.get_rect(center = (640, 690))
-        screen.blit(text_rules, text_rules_rect)
+        play_start_rect = pygame.Rect(530, 450, 220, 115)
+        text_play_start = font.render("PLAY", True, (0, 0, 0))
+        text_play_start_rect = text_play_start.get_rect(center = (640, 507))
+        screen.blit(text_play_start, text_play_start_rect)
+        rules_rect_start = pygame.Rect(530, 633, 220, 115)
+        text_rules_start = font.render("RULES", True, (0, 0, 0))
+        text_rules_start_rect = text_rules.get_rect(center = (640, 690))
+        screen.blit(text_rules_start, text_rules_start_rect)
+    
     if game_phase == 'rules_screen':
         screen.fill((0, 0, 0))
         book = pygame.transform.scale(pygame.image.load(os.path.join(ASSETS, 'book.png')), (800, 900))
@@ -403,6 +417,7 @@ while running:
             text_play_rect = text_play.get_rect(center = (645, 770))
             screen.blit(play_button_bg_image, (570, 730))
             screen.blit(text_play, text_play_rect)
+        
     if game_phase == 'lose_screen':
             screen.blit(lose_screen, (0, 0))
     if game_phase == 'win':
